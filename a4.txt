@@ -1,0 +1,114 @@
+Script started on 2022-10-25 20:25:20-04:00
+
+shivam@sjsu:~/A4[shivam@sjsu A4]$ cp /home/test/A1/downloaded_tweets_extend_nolf2_NOBOT.tsv /home/shivam/A4/
+shivam@sjsu:~/A4[shivam@sjsu A4]$ cp /home/test/A1/downloaded_tweets_extend_original_nolf2_NOBOT.tsv /home/shivam/A4/
+
+========================================================================
+0)
+========================================================================
+shivam@sjsu:~/A4[shivam@sjsu A4]$ grep retweeted downloaded_tweets_extend_nolf2_NOBOT.tsv | sed "s/\[<ReferencedTweet id==//g" | sed "s/ type=retweeted\]//g" | awk -F '\t' '{print $1 "\t" $5}' | sort | uniq > rtID_to_ogID.tsv 
+shivam@sjsu:~/A4[shivam@sjsu A4]$ cut -f 2 rtID_to_ogID.tsv > retweeted_ids.txt
+shivam@sjsu:~/A4[shivam@sjsu A4]$ fgrep -f retweeted_ids.txt downloaded_tweets_extend_original_nolf2_NOBOT.tsv | awk -F ""\t" '{print $2}' > userids_retweets3_fgrep.txt
+shivam@sjsu:~/A4[shivam@sjsu A4]$ sort userids_retweets3_fgrep.txt | uniq -c | sort -n  | tail  
+    141 1290232189615894531
+    158 813314931147816960
+    159 1229752606714728454
+    174 42836999
+    249 1219232377605644289
+    254 1231514832479948802
+    274 1495480590572961792
+    274 163018653
+    299 18831926
+    375 1891490382
+shivam@sjsu:~/A4[shivam@sjsu A4]$ sort userids_retweets3_fgrep.txt | uniq -c | sort -n  | tail | awk -F " " '{print $2}'  > top10.txt
+========================================================================
+1)
+========================================================================
+shivam@sjsu:~/A4[shivam@sjsu A4]$ fgrep -f userids_retweets3_fgrep.txt downloaded_tweets_extend_original_nolf2_NOBOT.tsv  | cut -f 1,2 > ogID_to_userID.tsv
+shivam@sjsu:~/A4[shivam@sjsu A4]$ awk -F "\t" 'NR==FNR {id[$1]=$2; next } ($2 in id){ print id[$2]"\t"$1}' ogID_to_userIDD.tsv rtID_to_ogID.tsv | sort > author_to_retweeter.tsv
+========================================================================
+2)
+========================================================================
+shivam@sjsu:~/A4[shivam@sjsu A4]$ awk -F "\t" '{print $1}' author_to_retweeter.tsv | uniq -c | awk -F " " '{if($1 >= 3) pprint $2 "\t"}' > ids_over_3
+shivam@sjsu:~/A4[shivam@sjsu A4]$ fgrep -f ids_over_3 author_to_retweeter.tsv > 3_or_more_replies.tsv
+========================================================================
+3)
+========================================================================
+shivam@sjsu:~/A4[shivam@sjsu A4]$ awk -F "\t" '{print $1}' author_to_retweeter.tsv | uniq -c | awk -F " " '{if($1 >= 3) pprint $1 "\t"  $2}' | sort -k 1 -n | awk -F "\t" '{print $1}' | uniq -c > data_for_histogram.tsv
+shivam@sjsu:~/A4[shivam@sjsu A4]$ /etc/gnuplot-5.4.4/src/gnuplot
+
+        G N U P L O T
+        Version 5.4 patchlevel 4    last modified 2022-07-10 
+
+        Copyright (C) 1986-1993, 1998, 2004, 2007-2022
+        Thomas Williams, Colin Kelley and many others
+
+        gnuplot home:     http://www.gnuplot.info
+        faq, bugs, etc:   type "help FAQ"
+        immediate help:   type "help"  (plot window: hit 'h')
+
+Terminal type is now 'unknown'
+gnuplot> set term svg size 2500, 500
+
+Terminal type is now 'svg'
+Options are 'size 2500,500 fixed enhanced font 'Arial,12' butt dashlength 1.0 '
+gnuplot> set output "A4q3.svg"
+gnuplot> set boxwidth 0.5
+gnuplot> set style fill solid
+label "amount of retweets"
+setgnuplot> set xlabel "amount of retweets"
+gnuplot> set ylabel "frequency"
+gnuplot> plot "data_for_histogram.tsv" using 0:1:xtic(2) with boxes
+gnuplot> q
+========================================================================
+4)
+========================================================================
+shivam@sjsu:~/A4[shivam@sjsu A4]$ fgrep -f ids_over_3 downloaded_tweets_extend_nolf2_NOBOT.tsv | awk -F "\t" '{if($6=="")) print $4}'  | tr '[:upper:]' '[:lower:]' | tr ',' '\n' | tr -d '\"' | sed '/^$/d'| sort | uniq -c | sorrt -nr  | head  -n 30 > a4q4_hashtags
+
+shivam@sjsu:~/A4[shivam@sjsu A4]$ awk -F "\t" '{print $4}' downloaded_tweets_extend_nolf2_NOBOT.tsv | tr ',' '\n' | tr -dd '\"'   | tr '[:upper:]' '[:lower:]' | sed '/^$/d'| sort | uniq -c | sort -nr | head -n 30 > a2q5_hashtags
+
+shivam@sjsu:~/A4[shivam@sjsu A4]$ diff -y a2q5_hashtags a4q4_hashtags
+   2895 ukraine                                               |     577 covid19
+   1924 covid19                                               |     541 ukraine
+   1314 longcovid                                             |     234 standwithukraine
+   1137 russia                                                |     231 russia
+    897 followbackfriday                                      |     228 ableg
+    895 fbpe                                                  |     216 longcovid
+    794 standwithukraine                                      |     175 covid19ab
+    536 putinhitler                                           |     163 covid
+    479 omicron                                               |     158 votefordout
+    475 russian                                               |     146 omicron
+    448 covid                                                 |     141 genocide
+    429 breaking                                              |     139 onpoli
+    423 putin                                                 |     138 notowar
+    384 auspol                                                |     134 russian
+    383 ableg                                                 |     131 putin
+    358 mariupol                                              |     130 covidisairborne
+    351 kyiv                                                  |     117 nevervoteconservative
+    342 bcpoli                                                |     115 israel
+    328 covidisairborne                                       |     112 nowarwithrussia
+    308 stopputinnow                                          |     109 ontario
+    302 pmqs                                                  |      96 cdnpoli
+    295 partygate                                             |      94 ottawa
+    285 genocide                                              |      94 mariupol
+    280 เจ้าแก้มก้อน                                             |      93 maskmandate
+    274 putinwarcriminal                                      |      91 apartheid
+    266 ottawa                                                |      90 endisraeliapartheid
+    263 russiasanctions                                       |      88 ukraineinvasion
+    260 boycottrussia                                         |      88 bcpoli
+    257 cdnpoli                                               |      79 canada
+    256 onpoli                                                |      79 abed
+========================================================================
+5)
+========================================================================
+shivam@sjsu:~/A4[shivam@sjsu A4]$ grep 19080151 3_or_more_replies.tsv > 19080151.tsv
+←GEPHI WAS USED TO PLOT 19080151.tsv and then SCP’ed it back to A4 using WinSCP →
+shivam@sjsu:~/A4[shivam@sjsu A4]$ exit
+Script done on 2022-10-25 20:26:04-04:00
+========================================================================
+6)
+========================================================================
+The network shows the connection between the author of a tweet and all the people that retweeted this author's tweet. The specific author in mind has the id 19080151. There are lines that go from one central node to a bunch of other nodes, the central node is the node for 19080151 and the other nodes are the nodes of all the people that retweeted 19080151's tweets. 
+
+
+
