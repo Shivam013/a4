@@ -6,7 +6,7 @@ shivam@sjsu:~/A4[shivam@sjsu A4]$ cp /home/test/A1/downloaded_tweets_extend_orig
 ========================================================================
 0)
 ========================================================================
-shivam@sjsu:~/A4[shivam@sjsu A4]$ grep retweeted downloaded_tweets_extend_nolf2_NOBOT.tsv | sed "s/\[<ReferencedTweet id==//g" | sed "s/ type=retweeted\]//g" | awk -F '\t' '{print $1 "\t" $5}' | sort | uniq > rtID_to_ogID.tsv 
+shivam@sjsu:~/A4[shivam@sjsu A4]$ grep retweeted downloaded_tweets_extend_nolf2_NOBOT.tsv | sed "s/\[<ReferencedTweet id=//g" | sed "s/ type=retweeted\]//g" | awk -F '\t' '{print $1 "\t" $5}' | sort | uniq > rtID_to_ogID.tsv 
 shivam@sjsu:~/A4[shivam@sjsu A4]$ cut -f 2 rtID_to_ogID.tsv > retweeted_ids.txt
 shivam@sjsu:~/A4[shivam@sjsu A4]$ fgrep -f retweeted_ids.txt downloaded_tweets_extend_original_nolf2_NOBOT.tsv | awk -F ""\t" '{print $2}' > userids_retweets3_fgrep.txt
 shivam@sjsu:~/A4[shivam@sjsu A4]$ sort userids_retweets3_fgrep.txt | uniq -c | sort -n  | tail  
@@ -25,7 +25,7 @@ shivam@sjsu:~/A4[shivam@sjsu A4]$ sort userids_retweets3_fgrep.txt | uniq -c | s
 1)
 ========================================================================
 shivam@sjsu:~/A4[shivam@sjsu A4]$ fgrep -f userids_retweets3_fgrep.txt downloaded_tweets_extend_original_nolf2_NOBOT.tsv  | cut -f 1,2 > ogID_to_userID.tsv
-shivam@sjsu:~/A4[shivam@sjsu A4]$ awk -F "\t" 'NR==FNR {id[$1]=$2; next } ($2 in id){ print id[$2]"\t"$1}' ogID_to_userIDD.tsv rtID_to_ogID.tsv | sort > author_to_retweeter.tsv
+shivam@sjsu:~/A4[shivam@sjsu A4]$ awk -F "\t" 'NR==FNR {id[$1]=$2; next } ($2 in id){ print id[$2]"\t"$1}' ogID_to_userID.tsv rtID_to_ogID.tsv | sort > author_to_retweeter.tsv
 ========================================================================
 2)
 ========================================================================
